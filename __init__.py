@@ -20,6 +20,19 @@ class JSONFieldHandler(BaseHandler):
         except (self.model.DoesNotExist, self.model.MultipleObjectsReturned):
             return None
 
+    def filter_data(self, data):
+
+        filtered = {}
+        if self.fields:
+            for field in self.fields:
+                filtered[field] = data[field]
+        else:
+            filtered = data.copy()
+        for key in self.exclude:
+            if filtered.has_key(key):
+                del(filtered[key])
+        return filtered
+
     def exists(self, **kwargs):
 
         try:
@@ -38,7 +51,7 @@ class JSONFieldHandler(BaseHandler):
         if not hasattr(instance, self.field_name):
             return rc.NOT_IMPLEMENTED
 
-        return getattr(instance, self.field_name)
+        return self.filter_data(getattr(instance, self.field_name))
 
     def create(self, request, instance=None, *args, **kwargs):
 
@@ -51,19 +64,14 @@ class JSONFieldHandler(BaseHandler):
         if getattr(instance, self.field_name):
             return rc.DUPLICATE_ENTRY
 
-        data = request.data.copy()
-        for key in self.exclude:
-            try:
-                del(data[key])
-            except KeyError:
-                pass
+        data = self.filter_data(request.data)
 
         # Populate the field and save the instance
         setattr(instance, self.field_name, data)
         instance.save()
 
         # Return the saved data
-        return getattr(instance, self.field_name)
+        return self.filter_data(getattr(instance, self.field_name))
 
     def update(self, request, instance=None, *args, **kwargs):
 
@@ -73,13 +81,13 @@ class JSONFieldHandler(BaseHandler):
             return rc.NOT_IMPLEMENTED
 
         for key in request.data.keys():
-            if not key in self.exclude:
+            if key in self.fields and not key in self.exclude:
                 instance.__getattribute__(self.field_name)[key] = request.data[key]
 
         instance.save()
 
         # Return the saved data
-        return getattr(instance, self.field_name)
+        return self.filter_data(getattr(instance, self.field_name))
 
     def delete(self, request, instance=None, *args, **kwargs):
 
