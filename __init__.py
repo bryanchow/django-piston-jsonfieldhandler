@@ -10,7 +10,7 @@ class JSONFieldHandler(BaseHandler):
     instance = None
     field_name = None
 
-    def get_instance(self, **kwargs):
+    def get_instance(self, request, **kwargs):
 
         pkfield = self.model._meta.pk.name
         if pkfield not in kwargs:
@@ -25,7 +25,8 @@ class JSONFieldHandler(BaseHandler):
         filtered = {}
         if self.fields:
             for field in self.fields:
-                filtered[field] = data[field]
+                if data.has_key(field):
+                    filtered[field] = data[field]
         else:
             filtered = data.copy()
         for key in self.exclude:
@@ -43,7 +44,7 @@ class JSONFieldHandler(BaseHandler):
     def read(self, request, instance=None, *args, **kwargs):
 
         if not instance:
-            instance = self.get_instance(**kwargs)
+            instance = self.get_instance(request, **kwargs)
         if not instance:
             return rc.NOT_IMPLEMENTED
 
@@ -56,7 +57,7 @@ class JSONFieldHandler(BaseHandler):
     def create(self, request, instance=None, *args, **kwargs):
 
         if not instance:
-            instance = self.get_instance(**kwargs)
+            instance = self.get_instance(request, **kwargs)
         if not instance:
             return rc.NOT_IMPLEMENTED
 
@@ -76,7 +77,7 @@ class JSONFieldHandler(BaseHandler):
     def update(self, request, instance=None, *args, **kwargs):
 
         if not instance:
-            instance = self.get_instance(**kwargs)
+            instance = self.get_instance(request, **kwargs)
         if not instance:
             return rc.NOT_IMPLEMENTED
 
@@ -92,7 +93,7 @@ class JSONFieldHandler(BaseHandler):
     def delete(self, request, instance=None, *args, **kwargs):
 
         if not instance:
-            instance = self.get_instance(**kwargs)
+            instance = self.get_instance(request, **kwargs)
         if not instance:
             return rc.NOT_IMPLEMENTED
 
