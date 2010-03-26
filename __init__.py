@@ -13,7 +13,6 @@ class JSONFieldHandler(BaseHandler):
     def get_instance(self, **kwargs):
 
         pkfield = self.model._meta.pk.name
-
         if pkfield not in kwargs:
             return None
         try:
@@ -33,10 +32,6 @@ class JSONFieldHandler(BaseHandler):
         if not instance:
             instance = self.get_instance(**kwargs)
         if not instance:
-            return rc.NOT_IMPLEMENTED
-
-        # Make sure a single instance was returned, and not a queryset
-        if hasattr(instance, 'query'):
             return rc.NOT_IMPLEMENTED
 
         # Field not found
