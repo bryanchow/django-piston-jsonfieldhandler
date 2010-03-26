@@ -1,0 +1,9 @@
+django-piston-jsonfieldhandler is a naive attempt at creating a generic
+Piston[1] handler for creating RESTful APIs for data stored in a
+JSONField[2].
+
+This repository has been intentionally structured for easy inclusion in
+other Python projects as a git submodule.
+
+[1] http://bitbucket.org/jespern/django-piston/
+[2] http://github.com/bryanchow/django-jsonfield
